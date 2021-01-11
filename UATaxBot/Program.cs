@@ -60,15 +60,15 @@ namespace UATaxBot
 
             switch (messageText)
             {
-                case ("/start"):
+                case "/start":
                     var replyKeyboard = new ReplyKeyboardMarkup(new[]{
                         new[] { new KeyboardButton("Расчитать стоимость растаможки") },
+                        new[] { new KeyboardButton("Контакты"), new KeyboardButton("Перезвоните мне") }
                     });
                     await Bot.SendTextMessageAsync(chatId, "Привет, я Taxbot!", replyMarkup: replyKeyboard);
                     return;
                 /////--------------------------////
-
-                case ("Расчитать стоимость растаможки"):
+                case "Расчитать стоимость растаможки":
                     TaxForm form = new TaxForm(message.From.Id.ToString(), message.Chat.Id.ToString(), $"{message.From.FirstName} {message.From.LastName}");
                     calcData.Remove(message.From.Id.ToString());
                     calcData.Add(message.From.Id.ToString(), form);
@@ -81,7 +81,16 @@ namespace UATaxBot
                     await Bot.SendTextMessageAsync(message.Chat.Id, firstStageText.Item1, replyMarkup: inlineKeyboard);
                     return;
                 /////--------------------------////
-
+                case "Контакты":
+                    string contacts = "Васямба Андреевич\nрастаможит любое ваше корыто\nтел: +380635205050";
+                    await Bot.SendTextMessageAsync(message.Chat.Id, contacts);
+                    return;
+                /////--------------------------////
+                case "Перезвоните мне":
+                    //string contacts = "Васямба Андреевич\nрастаможит любое ваше корыто\nтел: +380635205050";
+                    //await Bot.SendTextMessageAsync(message.Chat.Id, contacts);
+                    return;
+                /////--------------------------////
                 default:
                     TaxForm findedForm;
                     calcData.TryGetValue(chatId, out findedForm);
