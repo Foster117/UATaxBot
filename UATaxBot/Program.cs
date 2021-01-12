@@ -11,7 +11,7 @@ namespace UATaxBot
     class Program
     {
         private static readonly TelegramBotClient Bot = new TelegramBotClient("1509689010:AAE7TSS0mDGnLS1x-SFsXR2k-L_IM1X-cq0");
-        static Dictionary<string, TaxForm> calcData = new Dictionary<string, TaxForm>();
+        static Dictionary<string, TaxForm> calcTaxData = new Dictionary<string, TaxForm>();
         static void Main(string[] args)
         {
             Bot.OnMessage += BotOnMessageReceived;
@@ -45,6 +45,8 @@ namespace UATaxBot
             Message message;
             string messageText;
             string chatId;
+            TaxForm userForm;
+
             if (messageArgs != null)
             {
                 message = messageArgs.Message;
@@ -69,12 +71,11 @@ namespace UATaxBot
                     return;
                 /////--------------------------////
                 case "Расчитать стоимость растаможки":
-                    TaxForm form = new TaxForm(message.From.Id.ToString(), message.Chat.Id.ToString(), $"{message.From.FirstName} {message.From.LastName}");
-                    calcData.Remove(message.From.Id.ToString());
-                    calcData.Add(message.From.Id.ToString(), form);
-
-                    var firstStageText = form.StageText();
-                    var inlineKeyboard = new InlineKeyboardMarkup(new[] {
+                    TaxForm form = new TaxForm(message.From.Id.ToString(), message.Chat.Id.ToString(), $"{message.From.FirstName} {message.From.LastName}", ActionType.TaxCalculation);
+                    calcTaxData.Remove(message.From.Id.ToString());
+                    calcTaxData.Add(message.From.Id.ToString(), form);
+                    (string, int) firstStageText = form.GetCalcTaxStageText();
+                    InlineKeyboardMarkup inlineKeyboard = new InlineKeyboardMarkup(new[] {
                             new[]{ InlineKeyboardButton.WithCallbackData("USD", "USD"),
                                    InlineKeyboardButton.WithCallbackData("EUR", "EUR")}
                             });
@@ -82,60 +83,87 @@ namespace UATaxBot
                     return;
                 /////--------------------------////
                 case "Контакты":
+                    calcTaxData.Remove(message.From.Id.ToString());
                     string contacts = "Васямба Андреевич\nрастаможит любое ваше корыто\nтел: +380635205050";
                     await Bot.SendTextMessageAsync(message.Chat.Id, contacts);
                     return;
                 /////--------------------------////
                 case "Перезвоните мне":
+                    calcTaxData.Remove(message.From.Id.ToString());
                     //string contacts = "Васямба Андреевич\nрастаможит любое ваше корыто\nтел: +380635205050";
                     //await Bot.SendTextMessageAsync(message.Chat.Id, contacts);
                     return;
                 /////--------------------------////
                 default:
-                    TaxForm findedForm;
-                    calcData.TryGetValue(chatId, out findedForm);
-                    if (findedForm == null)
+                    calcTaxData.TryGetValue(chatId, out userForm);
+                    if (userForm == null)
                         return;
 
-                    bool validation = findedForm.SetParam(messageText);
-                    if (!validation)
+                    switch (userForm.ActionType)
                     {
-                        await Bot.SendTextMessageAsync(message.Chat.Id, "Введены некорректные данные. Попробуйте еще раз.");
+                        case ActionType.TaxCalculation:
+                            TaxCalculationProcess(userForm, messageText, message);
+                            break;
+                        case ActionType.SendContact:
+                            SendContactProcess(userForm, messageText, message);
+                            break;
+                        default:
+                            break;
                     }
-                    var stageText = findedForm.StageText();
-                    switch (stageText.Item2)
-                    {
-                        case 1:
-                            var inlineKeyboard1 = new InlineKeyboardMarkup(new[] {
+                    break;
+            }
+        }
+
+        private static async void TaxCalculationProcess(TaxForm findedForm, string messageText, Message message)
+        {
+            bool validation = findedForm.SetCalcTaxParam(messageText);
+            if (!validation)
+            {
+                await Bot.SendTextMessageAsync(message.Chat.Id, "Введены некорректные данные. Попробуйте еще раз.");
+            }
+            var stageText = findedForm.GetCalcTaxStageText();
+            switch (stageText.Item2)
+            {
+                case 1:
+                    var inlineKeyboard1 = new InlineKeyboardMarkup(new[] {
                             new[]{ InlineKeyboardButton.WithCallbackData("USD", "USD"),
                                    InlineKeyboardButton.WithCallbackData("EUR", "EUR")}
                             });
-                            await Bot.SendTextMessageAsync(message.Chat.Id, stageText.Item1, replyMarkup: inlineKeyboard1);
-                            return;
+                    await Bot.SendTextMessageAsync(message.Chat.Id, stageText.Item1, replyMarkup: inlineKeyboard1);
+                    return;
 
-                        case 4:
-                            var inlineKeyboard4 = new InlineKeyboardMarkup(new[] {
+                case 4:
+                    var inlineKeyboard4 = new InlineKeyboardMarkup(new[] {
                             new[]{ InlineKeyboardButton.WithCallbackData("Бензин и/или газ", "petrol"),
                                    InlineKeyboardButton.WithCallbackData("Дизель", "diesel")},
                             new[]{ InlineKeyboardButton.WithCallbackData("Гибрид", "gybrid"),
                                    InlineKeyboardButton.WithCallbackData("Электро", "electro")}
                             });
-                            await Bot.SendTextMessageAsync(message.Chat.Id, stageText.Item1, replyMarkup: inlineKeyboard4);
-                            return;
+                    await Bot.SendTextMessageAsync(message.Chat.Id, stageText.Item1, replyMarkup: inlineKeyboard4);
+                    return;
 
-                        case 6:
-                            var inlineKeyboard6 = new InlineKeyboardMarkup(new[] {
+                case 6:
+                    var inlineKeyboard6 = new InlineKeyboardMarkup(new[] {
                             new[]{ InlineKeyboardButton.WithCallbackData("USD", "USD"),
                                    InlineKeyboardButton.WithCallbackData("EUR", "EUR")}
                             });
-                            await Bot.SendTextMessageAsync(message.Chat.Id, stageText.Item1, replyMarkup: inlineKeyboard6);
-                            return;
+                    await Bot.SendTextMessageAsync(message.Chat.Id, stageText.Item1, replyMarkup: inlineKeyboard6);
+                    return;
 
-                        default:
-                            await Bot.SendTextMessageAsync(message.Chat.Id, stageText.Item1);
-                            return;
-                    }
+                case -1:
+                    await Bot.SendTextMessageAsync(message.Chat.Id, stageText.Item1);
+                    calcTaxData.Remove(message.From.Id.ToString());
+                    return;
+
+                default:
+                    await Bot.SendTextMessageAsync(message.Chat.Id, stageText.Item1);
+                    return;
             }
         }
+
+        private static async void SendContactProcess(TaxForm findedForm, string messageText, Message message)
+        {
+        }
+
     }
 }

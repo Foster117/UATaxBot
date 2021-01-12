@@ -16,46 +16,48 @@ namespace UATaxBot
         public int EngineVolume { get; set; }
         public string TransportationToUABorderCurrency { get; set; }
         public decimal TransportationToUABorderCost { get; set; }
+        public ActionType ActionType { get; set; }
 
-        public int stage;
+        public int calcTaxStage;
 
-        public TaxForm(string id, string chat_id, string name)
+        public TaxForm(string id, string chat_id, string name, ActionType actionType)
         {
-            stage = 1;
+            calcTaxStage = 1;
             Name = name;
             TargetId = id;
             ChatId = chat_id;
+            ActionType = ActionType;
         }
 
-        public (string, int) StageText()
+        public (string, int) GetCalcTaxStageText()
         {
-            if (stage == 1)
-                return ("Выберите валюту покупки автомобиля:", stage);
-            if (stage == 2)
-                return ("Введите инвойсную стоимость автомобиля:", stage);
-            if (stage == 3)
-                return ("Введите год выпуска автомобиля:", stage);
-            if (stage == 4)
-                return ("Выберите тип двигателя:", stage);
-            if (stage == 5)
-                return ("Введите объем двигателя/ёмкость батареи:", stage);
-            if (stage == 6)
-                return ("Выберите валюту транспортировки до границы Украины:", stage);
-            if (stage == 7)
-                return ("Введите цену транспортировки до границы Украины:", stage);
+            if (calcTaxStage == 1)
+                return ("Выберите валюту покупки автомобиля:", calcTaxStage);
+            if (calcTaxStage == 2)
+                return ("Введите инвойсную стоимость автомобиля:", calcTaxStage);
+            if (calcTaxStage == 3)
+                return ("Введите год выпуска автомобиля:", calcTaxStage);
+            if (calcTaxStage == 4)
+                return ("Выберите тип двигателя:", calcTaxStage);
+            if (calcTaxStage == 5)
+                return ("Введите объем двигателя/ёмкость батареи:", calcTaxStage);
+            if (calcTaxStage == 6)
+                return ("Выберите валюту транспортировки до границы Украины:", calcTaxStage);
+            if (calcTaxStage == 7)
+                return ("Введите цену транспортировки до границы Украины:", calcTaxStage);
 
             string tax = Model.CalculateTax(this);
             Visualizer.DrawLogText($"{Name} calculated customs tax     < {DateTime.Now} >");
-            return (tax, 0);
+            return (tax, -1);
         }
 
-        public bool SetParam(string param)
+        public bool SetCalcTaxParam(string param)
         {
             if (string.IsNullOrEmpty(param))
             {
                 return false;
             }
-            switch (stage)
+            switch (calcTaxStage)
             {
                 case 1:
                     if (param.ToUpper() == "USD" || param.ToUpper() == "EUR")
@@ -89,7 +91,7 @@ namespace UATaxBot
                         if (param == "gybrid")
                         {
                             EngineVolume = 1;
-                            stage++;
+                            calcTaxStage++;
                         }
                         break;
                     }
@@ -124,7 +126,7 @@ namespace UATaxBot
                     }
                     return false;
             }
-            stage++;
+            calcTaxStage++;
             return true;
         }
     }
