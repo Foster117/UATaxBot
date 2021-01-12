@@ -30,12 +30,12 @@ namespace UATaxBot
             Console.WriteLine("Error!");
         }
 
-        private static async void BotOnCallbackQueryReceived(object sender, CallbackQueryEventArgs e)
+        private static void BotOnCallbackQueryReceived(object sender, CallbackQueryEventArgs e)
         {
             MessageHandler(null, e);
         }
 
-        private static async void BotOnMessageReceived(object sender, MessageEventArgs e)
+        private static void BotOnMessageReceived(object sender, MessageEventArgs e)
         {
             MessageHandler(e, null);
         }
@@ -64,13 +64,13 @@ namespace UATaxBot
             {
                 case "/start":
                     var replyKeyboard = new ReplyKeyboardMarkup(new[]{
-                        new[] { new KeyboardButton("Расчитать стоимость растаможки") },
-                        new[] { new KeyboardButton("Контакты"), new KeyboardButton("Перезвоните мне") }
+                        new[] { new KeyboardButton("Рассчитать стоимость растаможки") },
+                        new[] { new KeyboardButton("Контакты"), new KeyboardButton("Информация") }
                     });
                     await Bot.SendTextMessageAsync(chatId, "Привет, я Taxbot!", replyMarkup: replyKeyboard);
                     return;
                 /////--------------------------////
-                case "Расчитать стоимость растаможки":
+                case "Рассчитать стоимость растаможки":
                     TaxForm form = new TaxForm(message.From.Id.ToString(), message.Chat.Id.ToString(), $"{message.From.FirstName} {message.From.LastName}", ActionType.TaxCalculation);
                     calcTaxData.Remove(message.From.Id.ToString());
                     calcTaxData.Add(message.From.Id.ToString(), form);
@@ -84,14 +84,14 @@ namespace UATaxBot
                 /////--------------------------////
                 case "Контакты":
                     calcTaxData.Remove(message.From.Id.ToString());
-                    string contacts = "Васямба Андреевич\nрастаможит любое ваше корыто\nтел: +380635205050";
+                    string contacts = "тел: +380635205050\nТимофей";
                     await Bot.SendTextMessageAsync(message.Chat.Id, contacts);
                     return;
                 /////--------------------------////
-                case "Перезвоните мне":
+                case "Информация":
                     calcTaxData.Remove(message.From.Id.ToString());
-                    //string contacts = "Васямба Андреевич\nрастаможит любое ваше корыто\nтел: +380635205050";
-                    //await Bot.SendTextMessageAsync(message.Chat.Id, contacts);
+                    string information = "Здесь будет очень полезная информация.";
+                    await Bot.SendTextMessageAsync(message.Chat.Id, information);
                     return;
                 /////--------------------------////
                 default:
@@ -103,9 +103,6 @@ namespace UATaxBot
                     {
                         case ActionType.TaxCalculation:
                             TaxCalculationProcess(userForm, messageText, message);
-                            break;
-                        case ActionType.SendContact:
-                            SendContactProcess(userForm, messageText, message);
                             break;
                         default:
                             break;
@@ -132,11 +129,11 @@ namespace UATaxBot
                     await Bot.SendTextMessageAsync(message.Chat.Id, stageText.Item1, replyMarkup: inlineKeyboard1);
                     return;
 
-                case 4:
+                case 3:
                     var inlineKeyboard4 = new InlineKeyboardMarkup(new[] {
                             new[]{ InlineKeyboardButton.WithCallbackData("Бензин и/или газ", "petrol"),
                                    InlineKeyboardButton.WithCallbackData("Дизель", "diesel")},
-                            new[]{ InlineKeyboardButton.WithCallbackData("Гибрид", "gybrid"),
+                            new[]{ InlineKeyboardButton.WithCallbackData("Гибрид", "hybrid"),
                                    InlineKeyboardButton.WithCallbackData("Электро", "electro")}
                             });
                     await Bot.SendTextMessageAsync(message.Chat.Id, stageText.Item1, replyMarkup: inlineKeyboard4);
@@ -160,10 +157,5 @@ namespace UATaxBot
                     return;
             }
         }
-
-        private static async void SendContactProcess(TaxForm findedForm, string messageText, Message message)
-        {
-        }
-
     }
 }

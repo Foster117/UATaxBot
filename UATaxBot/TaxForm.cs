@@ -34,13 +34,13 @@ namespace UATaxBot
             if (calcTaxStage == 1)
                 return ("Выберите валюту покупки автомобиля:", calcTaxStage);
             if (calcTaxStage == 2)
-                return ("Введите инвойсную стоимость автомобиля:", calcTaxStage);
+                return ("Введите стоимость автомобиля:", calcTaxStage);
             if (calcTaxStage == 3)
-                return ("Введите год выпуска автомобиля:", calcTaxStage);
-            if (calcTaxStage == 4)
                 return ("Выберите тип двигателя:", calcTaxStage);
+            if (calcTaxStage == 4)
+                return ((this.EngineType.ToLower() == "electro")?"Введите ёмкость батареи (кВт/ч):": "Введите объём двигателя (куб.см):", calcTaxStage);
             if (calcTaxStage == 5)
-                return ("Введите объем двигателя/ёмкость батареи:", calcTaxStage);
+                return ("Введите год выпуска автомобиля:", calcTaxStage);
             if (calcTaxStage == 6)
                 return ("Выберите валюту транспортировки до границы Украины:", calcTaxStage);
             if (calcTaxStage == 7)
@@ -76,36 +76,43 @@ namespace UATaxBot
                     }
                     return false;
                 case 3:
-                    int year;
-                    if (int.TryParse(param, out year) && year > 1920 && year <= DateTime.Now.Year)
-                    {
-                        YearOfManufacture = year;
-                        break;
-                    }
-                    return false;
-                case 4:
                     param = param.ToLower();
-                    if (param == "petrol" || param == "diesel" || param == "gybrid" || param == "electro")
+                    if (param == "petrol" || param == "diesel" || param == "hybrid" || param == "electro")
                     {
                         EngineType = param;
-                        if (param == "gybrid")
+                        if (param == "hybrid")
                         {
-                            EngineVolume = 1;
-                            calcTaxStage++;
+                            EngineVolume = 0;
+                            YearOfManufacture = 0;
+                            calcTaxStage += 2;
+                        }
+                        if (param == "electro")
+                        {
+                            YearOfManufacture = 0;
                         }
                         break;
                     }
                     return false;
-                case 5:
+                case 4:
                     int engineVolume;
                     int maxValue = 9999;
                     if (EngineType == "electro")
                     {
                         maxValue = 400;
+                        YearOfManufacture = 0;
+                        calcTaxStage++;
                     }
                     if (int.TryParse(param, out engineVolume) && engineVolume > 0 && engineVolume <= maxValue)
                     {
                         EngineVolume = engineVolume;
+                        break;
+                    }
+                    return false;
+                case 5:
+                    int year;
+                    if (int.TryParse(param, out year) && year > 1920 && year <= DateTime.Now.Year)
+                    {
+                        YearOfManufacture = year;
                         break;
                     }
                     return false;
@@ -119,7 +126,7 @@ namespace UATaxBot
                 case 7:
                     decimal priceToBorder;
                     param = param.Replace(',', '.');
-                    if (decimal.TryParse(param, out priceToBorder) && priceToBorder > 0)
+                    if (decimal.TryParse(param, out priceToBorder) && priceToBorder >= 0)
                     {
                         TransportationToUABorderCost = priceToBorder;
                         break;
