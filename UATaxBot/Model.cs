@@ -141,7 +141,8 @@ namespace UATaxBot
 
             decimal rateToOutput = (form.Currency == "USD") ? rateUSD : rateEUR;
 
-            string result = $"ИТОГО: {GetFormattedPrice(TAX)} грн.\n\n" +
+            string result = $"Расчёт на {DateTime.Now.Day:d2}/{DateTime.Now.Month:d2}/{DateTime.Now.Year}г.\n\n" +
+                $"ИТОГО: {GetFormattedPrice(TAX)} грн.\n\n" +
                 $"В том числе\n" +
                 $"Акцизный сбор: {GetFormattedPrice(EXC)} грн.\n" +
                 $"Пошлина: {GetFormattedPrice(TF)} грн.\n" +

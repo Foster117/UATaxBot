@@ -47,7 +47,7 @@ namespace UATaxBot
                 return ("Введите цену транспортировки до границы Украины:", calcTaxStage);
 
             string tax = Model.CalculateTax(this);
-            Visualizer.DrawLogText($"{Name} calculated customs tax     < {DateTime.Now} >");
+            Visualizer.DrawLogText($"{Name}", "calculated customs tax");
             return (tax, -1);
         }
 

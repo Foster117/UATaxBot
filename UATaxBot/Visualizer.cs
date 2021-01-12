@@ -14,7 +14,7 @@ namespace UATaxBot
             Console.ForegroundColor = ConsoleColor.DarkYellow;
             Console.WriteLine(new string('=', 118));
             Console.ForegroundColor = ConsoleColor.DarkCyan;
-            Console.WriteLine("                                              << UATaxBot version 0.5 >>".ToUpper());
+            Console.WriteLine("                                              << UATaxBot version 1.0 >>".ToUpper());
             Console.ResetColor();
             Console.ForegroundColor = ConsoleColor.DarkYellow;
             Console.WriteLine(new string('=', 118));
@@ -25,10 +25,13 @@ namespace UATaxBot
             Console.WriteLine(new string('=', 118));
             Console.ResetColor();
         }
-        public static void DrawLogText(string text)
+        public static void DrawLogText(string name, string text)
         {
+
+
+
             Console.ForegroundColor = (colorFlag) ? ConsoleColor.Gray : ConsoleColor.DarkGray;
-            Console.WriteLine(text);
+            Console.WriteLine("{0, -60}{1}", $"{name} {text}", DateTime.Now);
             Console.ResetColor();
             colorFlag = !colorFlag;
         }
