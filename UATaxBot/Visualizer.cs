@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using Telegram.Bot.Types;
 
 namespace UATaxBot
@@ -27,13 +25,17 @@ namespace UATaxBot
         }
         public static void DrawLogText(string name, string text)
         {
-
-
-
             Console.ForegroundColor = (colorFlag) ? ConsoleColor.Gray : ConsoleColor.DarkGray;
             Console.WriteLine("{0, -60}{1}", $"{name} {text}", DateTime.Now);
             Console.ResetColor();
             colorFlag = !colorFlag;
+        }
+
+        public static void DrawErrorMessage(int errorId, string errorMessage)
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine($"Error code - {errorId} {errorMessage}");
+            Console.ResetColor();
         }
     }
 }
