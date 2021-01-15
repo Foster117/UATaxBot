@@ -7,6 +7,8 @@ using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
 using System.Collections.Generic;
 
+//\U0001F69A
+
 //"1509689010:AAE7TSS0mDGnLS1x-SFsXR2k-L_IM1X-cq0"    TRUE bot
 //"1560358205:AAG4thqkHip7fBv2XabKntdZeErGFHM_290"    Test bot
 

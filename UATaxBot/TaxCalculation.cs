@@ -60,24 +60,8 @@ namespace UATaxBot
             }
         }
 
-        public static string CalculateTax(TaxForm form)
+        private static decimal GetCP(TaxForm form, decimal rateUSD, decimal rateEUR)
         {
-            decimal rateUSD = 0, rateEUR = 0;
-            decimal TAX, VAT, TF, EXC, CP, KY, KE;
-            List<Currency> currencies = GetExchangeRate();
-            foreach (Currency currency in currencies)
-            {
-                switch (currency.cc)
-                {
-                    case "USD":
-                        rateUSD = currency.rate;
-                        break;
-                    case "EUR":
-                        rateEUR = currency.rate;
-                        break;
-                }
-            }
-            /////// CP
             decimal carPrice = 0;
             decimal transportationUAH = 0;
             switch (form.CarPriceCurrency)
@@ -98,86 +82,113 @@ namespace UATaxBot
                     transportationUAH = form.TransportToUABorderCost * rateEUR;
                     break;
             }
-            CP = carPrice + transportationUAH;
-            /////// 
-            /////// KY
-            KY = DateTime.Now.Year - form.YearOfManufacture - 1;
-            if (KY > 15)
+            return carPrice + transportationUAH;
+        }
+        private static decimal GetKY(int yearOfManufacture)
+        {
+            decimal ky = DateTime.Now.Year - (yearOfManufacture - 1);
+            if (ky > 15)
             {
-                KY = 15;
+                return 15;
             }
-            if (KY < 1)
+            if (ky < 1)
             {
-                KY = 1;
+                return 1;
             }
-            ///////
-            /////// KE
+            return ky;
+        }
+        private static decimal GetKE(TaxForm form, decimal rateEUR)
+        {
             switch (form.CarEngineType)
             {
                 case EngineType.Petrol:
                     if (form.EngineVolume <= 3000)
                     {
-                        KE = (50m * form.EngineVolume / 1000m) * rateEUR;
+                        return (50m * form.EngineVolume / 1000m) * rateEUR;
                     }
                     else
                     {
-                        KE = (100m * form.EngineVolume / 1000m) * rateEUR;
+                        return (100m * form.EngineVolume / 1000m) * rateEUR;
                     }
-                    break;
                 case EngineType.Diesel:
                     if (form.EngineVolume <= 3500)
                     {
-                        KE = (75m * form.EngineVolume / 1000m) * rateEUR;
+                        return (75m * form.EngineVolume / 1000m) * rateEUR;
                     }
                     else
                     {
-                        KE = (150m * form.EngineVolume / 1000m) * rateEUR;
+                        return (150m * form.EngineVolume / 1000m) * rateEUR;
                     }
-                    break;
                 case EngineType.Hybrid:
-                    KE = 100m * rateEUR;
-                    break;
+                    return 100m * rateEUR;
                 case EngineType.Electro:
-                    KE = form.EngineVolume * rateEUR;
-                    break;
+                    return form.EngineVolume * rateEUR;
                 default:
-                    KE = 0;
-                    break;
+                    return 0;
             }
-            ///////
-            /////// TF
+        }
+        private static decimal GetTF(TaxForm form, decimal CP)
+        {
             if (form.CarEngineType == EngineType.Electro)
             {
-                TF = 0;
+                return 0;
             }
             else
             {
-                TF = CP * 0.1m;
+                return CP * 0.1m;
             }
-            ///////
-            /////// EXC
+        }
+        private static decimal GetEXC(TaxForm form, decimal KY, decimal KE)
+        {
             if (form.CarEngineType == EngineType.Petrol || form.CarEngineType == EngineType.Diesel)
             {
-                EXC = KY * KE;
+                return KY * KE;
             }
             else
             {
-                EXC = KE;
+                return KE;
             }
-            ///////
-            /////// VAT
+        }
+        private static decimal GetVAT(TaxForm form, decimal CP, decimal TF, decimal EXC)
+        {
             if (form.CarEngineType == EngineType.Electro)
             {
-                VAT = 0;
+                return 0;
             }
             else
             {
-                VAT = (CP + TF + EXC) * 0.2m;
+               return (CP + TF + EXC) * 0.2m;
             }
-            ///////
+        }
+
+        public static string CalculateTax(TaxForm form)
+        {
+            decimal rateUSD = 0, rateEUR = 0;
+            decimal TAX, VAT, TF, EXC, CP, KY, KE;
+            List<Currency> currencies = GetExchangeRate();
+            foreach (Currency currency in currencies)
+            {
+                switch (currency.cc)
+                {
+                    case "USD":
+                        rateUSD = currency.rate;
+                        break;
+                    case "EUR":
+                        rateEUR = currency.rate;
+                        break;
+                }
+            }
+
+            CP = GetCP(form, rateUSD, rateEUR);
+            KY = GetKY(form.YearOfManufacture);
+            KE = GetKE(form, rateEUR);
+            TF = GetTF(form, CP);
+            EXC = GetEXC(form, KY, KE);
+            VAT = GetVAT(form, CP, TF, EXC);
+
             /////// TAX
             TAX = VAT + TF + EXC;
-            ///////
+
             VAT = Math.Round(VAT, 2);
             TF = Math.Round(TF, 2);
             EXC = Math.Round(EXC, 2);
