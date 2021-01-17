@@ -7,7 +7,12 @@ using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
 using System.Collections.Generic;
 
-//\U0001F69A
+// bot.imex@ukr.net
+// qweasdzxc1234
+
+// http://www.freenom.com/
+// bot.imex@ukr.net
+// qweasdzxc1234
 
 //"1509689010:AAE7TSS0mDGnLS1x-SFsXR2k-L_IM1X-cq0"    TRUE bot
 //"1560358205:AAG4thqkHip7fBv2XabKntdZeErGFHM_290"    Test bot
@@ -16,7 +21,7 @@ namespace UATaxBot
 {
     class Program
     {
-        private static readonly TelegramBotClient Bot = new TelegramBotClient("1560358205:AAG4thqkHip7fBv2XabKntdZeErGFHM_290");
+        private static readonly TelegramBotClient Bot = new TelegramBotClient("1509689010:AAE7TSS0mDGnLS1x-SFsXR2k-L_IM1X-cq0");
         static Dictionary<string, TaxForm> calcTaxData = new Dictionary<string, TaxForm>();
         static void Main(string[] args)
         {
@@ -71,7 +76,8 @@ namespace UATaxBot
                 case "/start":
                     var replyKeyboard = new ReplyKeyboardMarkup(new[]{
                         new[] { new KeyboardButton("Рассчитать стоимость растаможки") },
-                        new[] { new KeyboardButton("Контакты"), new KeyboardButton("Информация") }
+                        new[] { new KeyboardButton("Контакты"), new KeyboardButton("Информация") },
+                        new[] { new KeyboardButton("Показать курсы НБУ") },
                     });
                     await Bot.SendTextMessageAsync(chatId, Messages.StartText, replyMarkup: replyKeyboard);
                     Visualizer.DrawLogText($"{message.From.FirstName} {message.From.LastName}", "started bot");
@@ -99,6 +105,12 @@ namespace UATaxBot
                     calcTaxData.Remove(message.From.Id.ToString());
                     await Bot.SendTextMessageAsync(message.Chat.Id, Messages.InformationText);
                     Visualizer.DrawLogText($"{message.From.FirstName} {message.From.LastName}", "checked information");
+                    return;
+                /////--------------------------////
+                case "Показать курсы НБУ":
+                    calcTaxData.Remove(message.From.Id.ToString());
+                    await Bot.SendTextMessageAsync(message.Chat.Id, CurrencyRates.ShowCurrencyRates());
+                    Visualizer.DrawLogText($"{message.From.FirstName} {message.From.LastName}", "checked currency rates");
                     return;
                 /////--------------------------////
                 default:

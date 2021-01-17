@@ -86,7 +86,7 @@ namespace UATaxBot
         }
         private static decimal GetKY(int yearOfManufacture)
         {
-            decimal ky = DateTime.Now.Year - (yearOfManufacture - 1);
+            decimal ky = DateTime.Now.Year - yearOfManufacture - 1;
             if (ky > 15)
             {
                 return 15;
@@ -160,12 +160,27 @@ namespace UATaxBot
                return (CP + TF + EXC) * 0.2m;
             }
         }
+        private static decimal GetPF(decimal CP)
+        {
+            if (CP >= 0 && CP <= 374550)
+            {
+                return CP * 0.03m;
+            }
+            if (CP > 374550 && CP <= 658300)
+            {
+                return CP * 0.04m;
+            }
+            else
+            {
+                return CP * 0.05m;
+            }
+        }
 
         public static string CalculateTax(TaxForm form)
         {
             decimal rateUSD = 0, rateEUR = 0;
-            decimal TAX, VAT, TF, EXC, CP, KY, KE;
-            List<Currency> currencies = GetExchangeRate();
+            decimal TAX, VAT, TF, EXC, CP, KY, KE, PF;
+            List<Currency> currencies = CurrencyRates.GetExchangeRate();
             foreach (Currency currency in currencies)
             {
                 switch (currency.cc)
@@ -185,6 +200,7 @@ namespace UATaxBot
             TF = GetTF(form, CP);
             EXC = GetEXC(form, KY, KE);
             VAT = GetVAT(form, CP, TF, EXC);
+            PF = GetPF(CP);
 
             /////// TAX
             TAX = VAT + TF + EXC;
@@ -233,7 +249,7 @@ namespace UATaxBot
             }
 
             string result = $"Расчёт на {DateTime.Now.Day:d2}/{DateTime.Now.Month:d2}/{DateTime.Now.Year}г.\n\n" +
-                $"ИТОГО: {GetFormattedPrice(TAX)} грн.\n\n" +
+                $"\U000027A1 ИТОГО: {GetFormattedPrice(TAX)} грн.\n\n" +
                 $"В том числе\n" +
                 $"Акцизный сбор: {GetFormattedPrice(EXC)} грн.\n" +
                 $"Пошлина: {GetFormattedPrice(TF)} грн.\n" +
@@ -245,6 +261,8 @@ namespace UATaxBot
                 $"Пошлина: {GetFormattedPrice(TF / rateToOutput)} {form.CarPriceCurrency}\n" +
                 $"НДС: {GetFormattedPrice(VAT / rateToOutput)} {form.CarPriceCurrency}\n\n" +
                 "-------------\n\n" +
+                $"Платёж в пенсионный фонд:\n{GetFormattedPrice(PF)}грн. ({GetFormattedPrice(PF / rateUSD)} USD)\n\n" +
+                "-------------\n\n" +
                 $"Рассчитано на основании введенных данных:\n" +
                 $"Цена автомобиля: {form.CarPrice} {form.CarPriceCurrency}\n" +
                 $"{fuelToOutput} {engVolToOutput}\n" +
@@ -253,32 +271,7 @@ namespace UATaxBot
             return result;
         }
 
-        private static List<Currency> GetExchangeRate()
-        {
-            string year = DateTime.Now.Year.ToString();
-            string month = DateTime.Now.Month.ToString("D2");
-            string day = DateTime.Now.Day.ToString("D2");
-            string responseFromServer;
-            string requestString = "https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange?date=" + year + month + day + "&json";
 
-            WebRequest request = WebRequest.Create(requestString);
-            using (Stream dataStream = request.GetResponse().GetResponseStream())
-            {
-                StreamReader reader = new StreamReader(dataStream);
-                responseFromServer = reader.ReadToEnd();
-            }
-            List<Currency> allRates = JsonSerializer.Deserialize<List<Currency>>(responseFromServer);
-            List<Currency> rates = new List<Currency>();
-            foreach (Currency currency in allRates)
-            {
-                if (currency.cc.ToUpper() == "USD" || currency.cc.ToUpper() == "EUR")
-                {
-                    currency.cc = currency.cc.ToUpper();
-                    rates.Add(currency);
-                }
-            }
-            return rates;
-        }
 
         private static string GetFormattedPrice(decimal price)
         {

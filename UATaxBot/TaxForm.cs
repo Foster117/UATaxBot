@@ -35,19 +35,19 @@ namespace UATaxBot
                 switch (calcTaxStage)
                 {
                     case 1:
-                        return ("Выберите валюту покупки автомобиля:", calcTaxStage);
+                        return ("\U0001F4B5\U0001F4B6 Выберите валюту покупки автомобиля:", calcTaxStage);
                     case 2:
-                        return ("Введите стоимость автомобиля:", calcTaxStage);
+                        return ("\U0001F4C4 Введите стоимость автомобиля:", calcTaxStage);
                     case 3:
-                        return ("Выберите тип двигателя:", calcTaxStage);
+                        return ("\U000026FD Выберите тип двигателя:", calcTaxStage);
                     case 4:
-                        return ((CarEngineType == EngineType.Electro) ? "Введите ёмкость батареи (кВт/ч):" : "Введите объём двигателя (куб.см):", calcTaxStage);
+                        return ((CarEngineType == EngineType.Electro) ? "\U0001F50B Введите ёмкость батареи (кВт/ч):" : "\U00002747 Введите объём двигателя (куб.см):", calcTaxStage);
                     case 5:
-                        return ("Введите год выпуска автомобиля:", calcTaxStage);
+                        return ("\U0001F3AB Введите год выпуска автомобиля:", calcTaxStage);
                     case 6:
-                        return ("Выберите валюту транспортировки до границы Украины:", calcTaxStage);
+                        return ("\U0001F4B5\U0001F4B6 Выберите валюту транспортировки до границы Украины:", calcTaxStage);
                     case 7:
-                        return ("Введите цену транспортировки до границы Украины:", calcTaxStage);
+                        return ("\U0001F4C4 Введите цену транспортировки до границы Украины:", calcTaxStage);
                     default:
                         string tax = TaxCalculation.CalculateTax(this);
                         Visualizer.DrawLogText($"{Name}", "calculated customs tax");
@@ -119,7 +119,12 @@ namespace UATaxBot
                         {
                             maxValue = 400;
                             YearOfManufacture = 0;
-                            calcTaxStage++;
+                            if (int.TryParse(param, out engineVolume) && engineVolume > 0 && engineVolume <= maxValue)
+                            {
+                                EngineVolume = engineVolume;
+                                calcTaxStage++;
+                                break;
+                            }
                         }
                         if (int.TryParse(param, out engineVolume) && engineVolume > 0 && engineVolume <= maxValue)
                         {

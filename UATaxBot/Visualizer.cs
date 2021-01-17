@@ -12,7 +12,7 @@ namespace UATaxBot
             Console.ForegroundColor = ConsoleColor.DarkYellow;
             Console.WriteLine(new string('=', 118));
             Console.ForegroundColor = ConsoleColor.DarkCyan;
-            Console.WriteLine("                                              << UATaxBot version 1.0 >>".ToUpper());
+            Console.WriteLine("                                              << UATaxBot version 1.1 >>".ToUpper());
             Console.ResetColor();
             Console.ForegroundColor = ConsoleColor.DarkYellow;
             Console.WriteLine(new string('=', 118));
