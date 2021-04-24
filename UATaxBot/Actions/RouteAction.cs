@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 using Telegram.Bot;
 using UATaxBot.Entities;
 using UATaxBot.Enums;
-using UATaxBot.Services;
 
 namespace UATaxBot.Actions
 {
@@ -23,6 +20,9 @@ namespace UATaxBot.Actions
             {
                 case ActionType.TaxCalculation:
                     TaxCalculation.TaxCalculationProcess(Bot, customer);
+                    break;
+                case ActionType.TaxEuroCalculation:
+                    TaxEuroCalculation.TaxCalculationProcess(Bot, customer);
                     break;
                 default:
                     break;

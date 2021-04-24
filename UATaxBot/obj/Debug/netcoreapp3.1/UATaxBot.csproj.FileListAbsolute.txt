@@ -1,5 +1,4 @@
 C:\Users\Foster117\Desktop\UATaxBot\UATaxBot\bin\Debug\netcoreapp3.1\UATaxBot.exe
-C:\Users\Foster117\Desktop\UATaxBot\UATaxBot\obj\Debug\netcoreapp3.1\UATaxBot.csprojAssemblyReference.cache
 C:\Users\Foster117\Desktop\UATaxBot\UATaxBot\obj\Debug\netcoreapp3.1\UATaxBot.AssemblyInfoInputs.cache
 C:\Users\Foster117\Desktop\UATaxBot\UATaxBot\obj\Debug\netcoreapp3.1\UATaxBot.AssemblyInfo.cs
 C:\Users\Foster117\Desktop\UATaxBot\UATaxBot\bin\Debug\netcoreapp3.1\UATaxBot.deps.json
@@ -30,3 +29,4 @@ C:\Users\Foster117\Desktop\TaxBot\UATaxBot\obj\Debug\netcoreapp3.1\UATaxBot.cspr
 C:\Users\Foster117\Desktop\TaxBot\UATaxBot\obj\Debug\netcoreapp3.1\UATaxBot.dll
 C:\Users\Foster117\Desktop\TaxBot\UATaxBot\obj\Debug\netcoreapp3.1\UATaxBot.pdb
 C:\Users\Foster117\Desktop\TaxBot\UATaxBot\obj\Debug\netcoreapp3.1\UATaxBot.genruntimeconfig.cache
+C:\Users\Foster117\Desktop\UATaxBot\UATaxBot\obj\Debug\netcoreapp3.1\UATaxBot.csprojAssemblyReference.cache

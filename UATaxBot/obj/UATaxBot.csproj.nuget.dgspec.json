@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Foster117\\Desktop\\TaxBot\\UATaxBot\\UATaxBot.csproj": {}
+    "C:\\Users\\Foster117\\Desktop\\UATaxBot\\UATaxBot\\UATaxBot.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Foster117\\Desktop\\TaxBot\\UATaxBot\\UATaxBot.csproj": {
+    "C:\\Users\\Foster117\\Desktop\\UATaxBot\\UATaxBot\\UATaxBot.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Foster117\\Desktop\\TaxBot\\UATaxBot\\UATaxBot.csproj",
+        "projectUniqueName": "C:\\Users\\Foster117\\Desktop\\UATaxBot\\UATaxBot\\UATaxBot.csproj",
         "projectName": "UATaxBot",
-        "projectPath": "C:\\Users\\Foster117\\Desktop\\TaxBot\\UATaxBot\\UATaxBot.csproj",
+        "projectPath": "C:\\Users\\Foster117\\Desktop\\UATaxBot\\UATaxBot\\UATaxBot.csproj",
         "packagesPath": "C:\\Users\\Foster117\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Foster117\\Desktop\\TaxBot\\UATaxBot\\obj\\",
+        "outputPath": "C:\\Users\\Foster117\\Desktop\\UATaxBot\\UATaxBot\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\Foster117\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -58,7 +58,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.1.402\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.1.405\\RuntimeIdentifierGraph.json"
         }
       }
     }

@@ -5,6 +5,6 @@ namespace UATaxBot.Enums
     {
         None,
         TaxCalculation,
-        TaxFromEuropeCalculation
+        TaxEuroCalculation
     }
 }

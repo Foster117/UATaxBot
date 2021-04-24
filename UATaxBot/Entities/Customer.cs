@@ -14,5 +14,6 @@ namespace UATaxBot.Entities
         public string MessageText { get; set; }
         public ActionType ActionType { get; set; }
         public TaxForm TaxForm { get; set; } = null;
+        public TaxEuroForm TaxEuroForm { get; set; } = null;
     }
 }

@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "Ljy+1TnzYRzOemeP4IRDUuBYiYsZRrgRQW+TuEJfhmNdfJKwTt+skGAKI7l6trnkAu0LEMWtApuSeiQzQJBQyA==",
+  "dgSpecHash": "gD9r/fW2R5m72WBnbqfLFQT5tl2evI06CjBoHMVlNX7ajZms4Eq5xmZGN3JeshoaKh48hL7IzpKmQDLZZmvt4Q==",
   "success": true,
-  "projectFilePath": "C:\\Users\\Foster117\\Desktop\\TaxBot\\UATaxBot\\UATaxBot.csproj",
+  "projectFilePath": "C:\\Users\\Foster117\\Desktop\\UATaxBot\\UATaxBot\\UATaxBot.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Foster117\\.nuget\\packages\\microsoft.netcore.platforms\\1.1.0\\microsoft.netcore.platforms.1.1.0.nupkg.sha512",
     "C:\\Users\\Foster117\\.nuget\\packages\\microsoft.netcore.targets\\1.1.0\\microsoft.netcore.targets.1.1.0.nupkg.sha512",
