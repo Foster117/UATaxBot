@@ -4,7 +4,7 @@ namespace UATaxBot.Enums
     enum ActionType
     {
         None,
-        TaxFromUSACalculation,
+        TaxCalculation,
         TaxFromEuropeCalculation
     }
 }

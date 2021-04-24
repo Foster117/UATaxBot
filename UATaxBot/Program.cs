@@ -24,9 +24,9 @@ namespace UATaxBot
     class Program
     {
         public static readonly TelegramBotClient Bot = new TelegramBotClient("1560358205:AAG4thqkHip7fBv2XabKntdZeErGFHM_290");
-        public static Dictionary<string, Customer> ActiveCustomersCollection => new Dictionary<string, Customer>();
+        public static Dictionary<string, Customer> ActiveCustomersCollection { get; set; } = new Dictionary<string, Customer>();
         public static ActionManager ActionManager => new ActionManager();
-        public static CustomerMessage UserMessage { get; private set; }
+        public static InputMessage UserMessage { get; private set; }
         public static CustomerService CustomerService => new CustomerService();
         public static MessageService MessageService => new MessageService();
 
@@ -37,7 +37,7 @@ namespace UATaxBot
             Bot.OnReceiveError += BotOnReceiveError;
             Bot.StartReceiving(Array.Empty<UpdateType>());
 
-            Visualizer.DrawStartText(Bot.GetMeAsync().Result);
+            Visualizer.PrintStartText(Bot.GetMeAsync().Result);
 
             Console.ReadLine();
             Bot.StopReceiving();
@@ -57,23 +57,21 @@ namespace UATaxBot
         {
             MessageHandler(e, null);
         }
-
-
-        ///////////////////////
         ///////////////////////
         private static void MessageHandler(MessageEventArgs messageArgs, CallbackQueryEventArgs callbackArgs)
         {
             Customer customer;
-            CustomerMessage message = MessageService.GetCustomerMessage(messageArgs, callbackArgs);
+            InputMessage message = MessageService.GetCustomerMessage(messageArgs, callbackArgs);
 
             if (CustomerService.CheckForExistantCustomer(message.ChatId))
             {
-                 ActiveCustomersCollection.TryGetValue(message.ChatId, out customer);
+                ActiveCustomersCollection.TryGetValue(message.ChatId, out customer);
+                customer.MessageText = message.Text;
             }
             else
             {
-                 customer = CustomerService.GetCustomer(messageArgs, callbackArgs);
-                 ActiveCustomersCollection.Add(customer.ChatId, customer);
+                customer = CustomerService.GetCustomer(messageArgs, callbackArgs);
+                ActiveCustomersCollection.Add(customer.ChatId, customer);
             }
             ActionManager.SelectAction(customer);
         }

@@ -12,18 +12,27 @@ using UATaxBot.Entities;
 
 namespace UATaxBot
 {
-    class TaxCalculationUSA
+    class TaxCalculation
     {
+        public static Dictionary<string, Customer> ActiveCustomersCollection => Program.ActiveCustomersCollection;
         public static async void TaxCalculationProcess(TelegramBotClient Bot, Customer customer)
         {
-            bool validation = customer.TaxFromUSAForm.SetCalcTaxParam(customer.MessageText);
+            bool validation = customer.TaxForm.SetCalcTaxParam(customer.MessageText);
             if (!validation)
             {
                 await Bot.SendTextMessageAsync(customer.ChatId, Messages.TaxValidationErrorText);
             }
-            (string, int) stageText = customer.TaxFromUSAForm.GetCalcTaxStageText();
+            (string, int) stageText = customer.TaxForm.GetCalcTaxStageText();
             switch (stageText.Item2)
             {
+                case 0:
+                    (string, int) firstStageText = customer.TaxForm.GetCalcTaxStageText();
+                    InlineKeyboardMarkup inlineKeyboard = new InlineKeyboardMarkup(new[] {
+                                new[]{ InlineKeyboardButton.WithCallbackData("USD", "USD"),
+                                       InlineKeyboardButton.WithCallbackData("EUR", "EUR")}
+                                });
+                    await Bot.SendTextMessageAsync(customer.ChatId, firstStageText.Item1, replyMarkup: inlineKeyboard);
+                    return;
                 case 1:
                     var inlineKeyboard1 = new InlineKeyboardMarkup(new[] {
                             new[]{ InlineKeyboardButton.WithCallbackData("USD", "USD"),
@@ -52,7 +61,7 @@ namespace UATaxBot
 
                 case -1:
                     await Bot.SendTextMessageAsync(customer.ChatId, stageText.Item1);
-                    //calcTaxData.Remove(message.From.Id.ToString());
+                    ActiveCustomersCollection.Remove(customer.ChatId);
                     return;
 
                 default:
@@ -61,7 +70,7 @@ namespace UATaxBot
             }
         }
 
-        private static decimal GetCP(TaxFromUSAForm form, decimal rateUSD, decimal rateEUR)
+        private static decimal GetCP(TaxForm form, decimal rateUSD, decimal rateEUR)
         {
             decimal carPrice = 0;
             decimal transportationUAH = 0;
@@ -98,7 +107,7 @@ namespace UATaxBot
             }
             return ky;
         }
-        private static decimal GetKE(TaxFromUSAForm form, decimal rateEUR)
+        private static decimal GetKE(TaxForm form, decimal rateEUR)
         {
             switch (form.CarEngineType)
             {
@@ -128,7 +137,7 @@ namespace UATaxBot
                     return 0;
             }
         }
-        private static decimal GetTF(TaxFromUSAForm form, decimal CP)
+        private static decimal GetTF(TaxForm form, decimal CP)
         {
             if (form.CarEngineType == EngineType.Electro)
             {
@@ -139,7 +148,7 @@ namespace UATaxBot
                 return CP * 0.1m;
             }
         }
-        private static decimal GetEXC(TaxFromUSAForm form, decimal KY, decimal KE)
+        private static decimal GetEXC(TaxForm form, decimal KY, decimal KE)
         {
             if (form.CarEngineType == EngineType.Petrol || form.CarEngineType == EngineType.Diesel)
             {
@@ -150,7 +159,7 @@ namespace UATaxBot
                 return KE;
             }
         }
-        private static decimal GetVAT(TaxFromUSAForm form, decimal CP, decimal TF, decimal EXC)
+        private static decimal GetVAT(TaxForm form, decimal CP, decimal TF, decimal EXC)
         {
             if (form.CarEngineType == EngineType.Electro)
             {
@@ -177,7 +186,7 @@ namespace UATaxBot
             }
         }
 
-        public static string CalculateTax(TaxFromUSAForm form)
+        public static string CalculateTax(TaxForm form)
         {
             decimal rateUSD = 0, rateEUR = 0;
             decimal TAX, VAT, TF, EXC, CP, KY, KE, PF;

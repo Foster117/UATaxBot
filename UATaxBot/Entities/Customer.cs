@@ -13,6 +13,6 @@ namespace UATaxBot.Entities
         public string TargetId { get; set; }
         public string MessageText { get; set; }
         public ActionType ActionType { get; set; }
-        public TaxFromUSAForm TaxFromUSAForm { get; set; } = null;
+        public TaxForm TaxForm { get; set; } = null;
     }
 }

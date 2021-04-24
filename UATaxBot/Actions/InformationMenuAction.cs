@@ -7,14 +7,14 @@ using UATaxBot.Services;
 
 namespace UATaxBot.Actions
 {
-    class CalculateTaxFromUSA
+    class InformationMenuAction
     {
         public static TelegramBotClient Bot => Program.Bot;
         public static Dictionary<string, Customer> ActiveCustomersCollection => Program.ActiveCustomersCollection;
         public static async void Go(Customer customer)
         {
-            await Bot.SendTextMessageAsync(customer.ChatId, CurrencyRates.ShowCurrencyRates());
-            LogService.PrintLogText($"{customer.FirstName} {customer.LastName}", "checked currency rates");
+            await Bot.SendTextMessageAsync(customer.ChatId, Messages.InformationText);
+            LogService.PrintLogText($"{customer.FirstName} {customer.LastName}", "checked information");
             ActiveCustomersCollection.Remove(customer.ChatId);
         }
     }

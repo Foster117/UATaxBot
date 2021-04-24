@@ -8,14 +8,15 @@ using UATaxBot.Services;
 
 namespace UATaxBot.Actions
 {
-    static class StartAction
+    static class StartMenuAction
     {
         public static TelegramBotClient Bot => Program.Bot;
         public static Dictionary<string, Customer> ActiveCustomersCollection => Program.ActiveCustomersCollection;
         public static async void Go(Customer customer)
         {
             ReplyKeyboardMarkup replyKeyboard = new ReplyKeyboardMarkup(new[]{
-                        new[] { new KeyboardButton("Рассчитать стоимость растаможки (USA)") },
+                        new[] { new KeyboardButton("Рассчитать стоимость растаможки") },
+                        new[] { new KeyboardButton("Рассчитать стоимость растаможки евробляхи") },
                         new[] { new KeyboardButton("Контакты"), new KeyboardButton("Информация") },
                         new[] { new KeyboardButton("Показать курсы НБУ") }
                         });

@@ -2,24 +2,17 @@
 using UATaxBot.Enums;
 using UATaxBot.Services;
 
-namespace UATaxBot
+namespace UATaxBot.Entities
 {
-    class TaxFromUSAForm
+    class TaxEuroForm
     {
-        public decimal CarPrice { get; set; }
-        public CurrencyType CarPriceCurrency { get; set; }
         public int YearOfManufacture { get; set; }
         public EngineType CarEngineType { get; set; }
         public int EngineVolume { get; set; }
         public CurrencyType TransportToUABorderCurrency { get; set; }
         public decimal TransportToUABorderCost { get; set; }
+        private int _calcTaxStage = 0;
 
-        private int _calcTaxStage;
-
-        public TaxFromUSAForm()
-        {
-            _calcTaxStage = 1;
-        }
 
         public (string, int) GetCalcTaxStageText()
         {
@@ -40,7 +33,7 @@ namespace UATaxBot
                 case 7:
                     return ("\U0001F4C4 Введите цену транспортировки до границы Украины:", _calcTaxStage);
                 default:
-                    string tax = TaxCalculationUSA.CalculateTax(this);
+                    string tax = TaxEuroCalculation.CalculateTax(this);
                     LogService.PrintLogText($"UserName", "calculated customs tax");
                     return (tax, -1);
             }

@@ -3,19 +3,19 @@ using System.Collections.Generic;
 using System.Text;
 using Telegram.Bot;
 using UATaxBot.Entities;
-using UATaxBot.Services;
+using UATaxBot.Enums;
 
 namespace UATaxBot.Actions
 {
-    class ContactAction
+    class CalculateTaxEuroMenuAction
     {
         public static TelegramBotClient Bot => Program.Bot;
         public static Dictionary<string, Customer> ActiveCustomersCollection => Program.ActiveCustomersCollection;
-        public static async void Go(Customer customer)
+        public static void Go(Customer customer)
         {
-            await Bot.SendTextMessageAsync(customer.ChatId, Messages.ContactsText);
-            LogService.PrintLogText($"{customer.FirstName} {customer.LastName}", "checked contacts");
-            ActiveCustomersCollection.Remove(customer.ChatId);
+            customer.ActionType = ActionType.TaxCalculation;
+            customer.TaxForm = new TaxForm(customer);
+            TaxCalculation.TaxCalculationProcess(Bot, customer);
         }
     }
 }

@@ -6,7 +6,7 @@ namespace UATaxBot
     class Visualizer
     {
 
-        public static void DrawStartText(User me)
+        public static void PrintStartText(User me)
         {
             Console.Title = me.Username;
             Console.ForegroundColor = ConsoleColor.DarkYellow;

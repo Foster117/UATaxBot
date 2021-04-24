@@ -4,7 +4,7 @@ using System.Text;
 
 namespace UATaxBot.Entities
 {
-    class CustomerMessage
+    class InputMessage
     {
         public string ChatId { get; set; }
         public string Text { get; set; }

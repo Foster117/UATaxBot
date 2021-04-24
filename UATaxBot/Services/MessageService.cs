@@ -8,9 +8,9 @@ namespace UATaxBot.Services
 {
     class MessageService
     {
-        public static CustomerMessage GetCustomerMessage(MessageEventArgs messageArgs, CallbackQueryEventArgs callbackArgs)
+        public static InputMessage GetCustomerMessage(MessageEventArgs messageArgs, CallbackQueryEventArgs callbackArgs)
         {
-            CustomerMessage message = new CustomerMessage();
+            InputMessage message = new InputMessage();
             if (messageArgs != null)
             {
                 message.Text = messageArgs.Message.Text;
