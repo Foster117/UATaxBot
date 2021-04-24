@@ -6,6 +6,8 @@ using Telegram.Bot.Args;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
 using System.Collections.Generic;
+using UATaxBot.Entities;
+using UATaxBot.Services;
 
 // bot.imex@ukr.net
 // qweasdzxc1234
@@ -21,8 +23,13 @@ namespace UATaxBot
 {
     class Program
     {
-        private static readonly TelegramBotClient Bot = new TelegramBotClient("1509689010:AAE7TSS0mDGnLS1x-SFsXR2k-L_IM1X-cq0");
-        static Dictionary<string, TaxForm> calcTaxData = new Dictionary<string, TaxForm>();
+        public static readonly TelegramBotClient Bot = new TelegramBotClient("1560358205:AAG4thqkHip7fBv2XabKntdZeErGFHM_290");
+        public static Dictionary<string, Customer> ActiveCustomersCollection => new Dictionary<string, Customer>();
+        public static ActionManager ActionManager => new ActionManager();
+        public static CustomerMessage UserMessage { get; private set; }
+        public static CustomerService CustomerService => new CustomerService();
+        public static MessageService MessageService => new MessageService();
+
         static void Main(string[] args)
         {
             Bot.OnMessage += BotOnMessageReceived;
@@ -51,84 +58,24 @@ namespace UATaxBot
             MessageHandler(e, null);
         }
 
-        private static async void MessageHandler(MessageEventArgs messageArgs, CallbackQueryEventArgs callbackArgs)
-        {
-            Message message;
-            string messageText;
-            string chatId;
-            TaxForm userForm;
 
-            if (messageArgs != null)
+        ///////////////////////
+        ///////////////////////
+        private static void MessageHandler(MessageEventArgs messageArgs, CallbackQueryEventArgs callbackArgs)
+        {
+            Customer customer;
+            CustomerMessage message = MessageService.GetCustomerMessage(messageArgs, callbackArgs);
+
+            if (CustomerService.CheckForExistantCustomer(message.ChatId))
             {
-                message = messageArgs.Message;
-                messageText = messageArgs.Message.Text;
-                chatId = messageArgs.Message.From.Id.ToString();
+                 ActiveCustomersCollection.TryGetValue(message.ChatId, out customer);
             }
             else
             {
-                message = callbackArgs.CallbackQuery.Message;
-                messageText = callbackArgs.CallbackQuery.Data;
-                chatId = callbackArgs.CallbackQuery.From.Id.ToString();
+                 customer = CustomerService.GetCustomer(messageArgs, callbackArgs);
+                 ActiveCustomersCollection.Add(customer.ChatId, customer);
             }
-
-            switch (messageText)
-            {
-                case "/start":
-                    var replyKeyboard = new ReplyKeyboardMarkup(new[]{
-                        new[] { new KeyboardButton("Рассчитать стоимость растаможки") },
-                        new[] { new KeyboardButton("Контакты"), new KeyboardButton("Информация") },
-                        new[] { new KeyboardButton("Показать курсы НБУ") },
-                    });
-                    await Bot.SendTextMessageAsync(chatId, Messages.StartText, replyMarkup: replyKeyboard);
-                    Visualizer.DrawLogText($"{message.From.FirstName} {message.From.LastName}", "started bot");
-                    return;
-                /////--------------------------////
-                case "Рассчитать стоимость растаможки":
-                    TaxForm form = new TaxForm(message.From.Id.ToString(), message.Chat.Id.ToString(), $"{message.From.FirstName} {message.From.LastName}", ActionType.TaxCalculation);
-                    calcTaxData.Remove(message.From.Id.ToString());
-                    calcTaxData.Add(message.From.Id.ToString(), form);
-                    (string, int) firstStageText = form.GetCalcTaxStageText();
-                    InlineKeyboardMarkup inlineKeyboard = new InlineKeyboardMarkup(new[] {
-                            new[]{ InlineKeyboardButton.WithCallbackData("USD", "USD"),
-                                   InlineKeyboardButton.WithCallbackData("EUR", "EUR")}
-                            });
-                    await Bot.SendTextMessageAsync(message.Chat.Id, firstStageText.Item1, replyMarkup: inlineKeyboard);
-                    return;
-                /////--------------------------////
-                case "Контакты":
-                    calcTaxData.Remove(message.From.Id.ToString());
-                    await Bot.SendTextMessageAsync(message.Chat.Id, Messages.ContactsText);
-                    Visualizer.DrawLogText($"{message.From.FirstName} {message.From.LastName}", "checked contacts");
-                    return;
-                /////--------------------------////
-                case "Информация":
-                    calcTaxData.Remove(message.From.Id.ToString());
-                    await Bot.SendTextMessageAsync(message.Chat.Id, Messages.InformationText);
-                    Visualizer.DrawLogText($"{message.From.FirstName} {message.From.LastName}", "checked information");
-                    return;
-                /////--------------------------////
-                case "Показать курсы НБУ":
-                    calcTaxData.Remove(message.From.Id.ToString());
-                    await Bot.SendTextMessageAsync(message.Chat.Id, CurrencyRates.ShowCurrencyRates());
-                    Visualizer.DrawLogText($"{message.From.FirstName} {message.From.LastName}", "checked currency rates");
-                    return;
-                /////--------------------------////
-                default:
-                    calcTaxData.TryGetValue(chatId, out userForm);
-                    if (userForm == null)
-                    {
-                        return;
-                    }
-                    switch (userForm.ActionType)
-                    {
-                        case ActionType.TaxCalculation:
-                            TaxCalculation.TaxCalculationProcess(Bot, calcTaxData, userForm, messageText, message);
-                            break;
-                        default:
-                            break;
-                    }
-                    break;
-            }
+            ActionManager.SelectAction(customer);
         }
     }
 }
