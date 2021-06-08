@@ -8,27 +8,37 @@ using System.Net;
 using System.IO;
 using System.Text.Json;
 using UATaxBot.Enums;
+using UATaxBot.Entities;
 
 namespace UATaxBot
 {
     class TaxCalculation
     {
-        public static async void TaxCalculationProcess(TelegramBotClient Bot, Dictionary<string, TaxForm> calcTaxData, TaxForm findedForm, string messageText, Message message)
+        public static Dictionary<string, Customer> ActiveCustomersCollection => Program.ActiveCustomersCollection;
+        public static async void TaxCalculationProcess(TelegramBotClient Bot, Customer customer)
         {
-            bool validation = findedForm.SetCalcTaxParam(messageText);
+            bool validation = customer.TaxForm.SetCalcTaxParam(customer.MessageText);
             if (!validation)
             {
-                await Bot.SendTextMessageAsync(message.Chat.Id, Messages.TaxValidationErrorText);
+                await Bot.SendTextMessageAsync(customer.ChatId, Messages.TaxValidationErrorText);
             }
-            var stageText = findedForm.GetCalcTaxStageText();
+            (string, int) stageText = customer.TaxForm.GetCalcTaxStageText();
             switch (stageText.Item2)
             {
+                case 0:
+                    (string, int) firstStageText = customer.TaxForm.GetCalcTaxStageText();
+                    InlineKeyboardMarkup inlineKeyboard = new InlineKeyboardMarkup(new[] {
+                                new[]{ InlineKeyboardButton.WithCallbackData("USD", "USD"),
+                                       InlineKeyboardButton.WithCallbackData("EUR", "EUR")}
+                                });
+                    await Bot.SendTextMessageAsync(customer.ChatId, firstStageText.Item1, replyMarkup: inlineKeyboard);
+                    return;
                 case 1:
                     var inlineKeyboard1 = new InlineKeyboardMarkup(new[] {
                             new[]{ InlineKeyboardButton.WithCallbackData("USD", "USD"),
                                    InlineKeyboardButton.WithCallbackData("EUR", "EUR")}
                             });
-                    await Bot.SendTextMessageAsync(message.Chat.Id, stageText.Item1, replyMarkup: inlineKeyboard1);
+                    await Bot.SendTextMessageAsync(customer.ChatId, stageText.Item1, replyMarkup: inlineKeyboard1);
                     return;
 
                 case 3:
@@ -38,7 +48,7 @@ namespace UATaxBot
                             new[]{ InlineKeyboardButton.WithCallbackData("Гибрид", "hybrid"),
                                    InlineKeyboardButton.WithCallbackData("Электро", "electro")}
                             });
-                    await Bot.SendTextMessageAsync(message.Chat.Id, stageText.Item1, replyMarkup: inlineKeyboard4);
+                    await Bot.SendTextMessageAsync(customer.ChatId, stageText.Item1, replyMarkup: inlineKeyboard4);
                     return;
 
                 case 6:
@@ -46,16 +56,16 @@ namespace UATaxBot
                             new[]{ InlineKeyboardButton.WithCallbackData("USD", "USD"),
                                    InlineKeyboardButton.WithCallbackData("EUR", "EUR")}
                             });
-                    await Bot.SendTextMessageAsync(message.Chat.Id, stageText.Item1, replyMarkup: inlineKeyboard6);
+                    await Bot.SendTextMessageAsync(customer.ChatId, stageText.Item1, replyMarkup: inlineKeyboard6);
                     return;
 
                 case -1:
-                    await Bot.SendTextMessageAsync(message.Chat.Id, stageText.Item1);
-                    calcTaxData.Remove(message.From.Id.ToString());
+                    await Bot.SendTextMessageAsync(customer.ChatId, stageText.Item1);
+                    ActiveCustomersCollection.Remove(customer.ChatId);
                     return;
 
                 default:
-                    await Bot.SendTextMessageAsync(message.Chat.Id, stageText.Item1);
+                    await Bot.SendTextMessageAsync(customer.ChatId, stageText.Item1);
                     return;
             }
         }

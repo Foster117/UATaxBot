@@ -3,6 +3,8 @@ namespace UATaxBot.Enums
 {
     enum ActionType
     {
-        TaxCalculation
+        None,
+        TaxCalculation,
+        TaxEuroCalculation
     }
 }
