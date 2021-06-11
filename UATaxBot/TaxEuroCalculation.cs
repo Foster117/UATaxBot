@@ -20,7 +20,7 @@ namespace UATaxBot
             bool validation = customer.TaxEuroForm.SetCalcTaxParam(customer.MessageText);
             if (!validation)
             {
-                await Bot.SendTextMessageAsync(customer.ChatId, Messages.TaxValidationErrorText);
+                await Bot.SendTextMessageAsync(customer.ChatId, TextManager.TaxValidationErrorText);
             }
             (string, int) stageText = customer.TaxEuroForm.GetCalcTaxStageText();
             switch (stageText.Item2)

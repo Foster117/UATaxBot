@@ -22,23 +22,23 @@ namespace UATaxBot
                     StartMenuAction.Go(customer);
                     break;
 
-                case "Контакты":
+                case TextManager.MenuContacts:
                     ContactMenuAction.Go(customer);
                     break;
 
-                case "Информация":
+                case TextManager.MenuInformation:
                     InformationMenuAction.Go(customer);
                     break;
 
-                case "Показать курсы НБУ":
+                case TextManager.MenuNBUCurrencyRates:
                     ExchangeRatesMenuAction.Go(customer);
                     break;
 
-                case "Рассчитать стоимость растаможки":
+                case TextManager.MenuCarFromUsaKoreaEuropeAccurate:
                     CalculateTaxMenuAction.Go(customer);
                     break;
 
-                case "Рассчитать стоимость растаможки евробляхи":
+                case TextManager.MenuCarEurobadgeAccurate:
                     CalculateTaxEuroMenuAction.Go(customer);
                     break;
 

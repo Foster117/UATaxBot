@@ -15,14 +15,35 @@ namespace UATaxBot.Actions
         public static async void Go(Customer customer)
         {
             ReplyKeyboardMarkup replyKeyboard = new ReplyKeyboardMarkup(new[]{
-                        new[] { new KeyboardButton("Рассчитать стоимость растаможки") },
-                        new[] { new KeyboardButton("Рассчитать стоимость растаможки евробляхи") },
-                        new[] { new KeyboardButton("Контакты"), new KeyboardButton("Информация") },
-                        new[] { new KeyboardButton("Показать курсы НБУ") }
-                        });
+                        // Row 1
+                        new[] { 
+                            new KeyboardButton(TextManager.MenuCarFromUsaInaccurate), 
+                            new KeyboardButton(TextManager.MenuCarFromKoreaInaccurate) 
+                        },
 
-            await Bot.SendTextMessageAsync(customer.ChatId, Messages.StartText, replyMarkup: replyKeyboard);
-            LogService.PrintLogText($"{customer.FirstName} {customer.LastName}", "started the bot");
+                        // Row 2
+                        new[] { 
+                            new KeyboardButton(TextManager.MenuCarFromEuropeInaccurate), 
+                            new KeyboardButton(TextManager.MenuInformation) 
+                        },
+
+                        // Row 3
+                        new[] { new KeyboardButton(TextManager.MenuCarFromUsaKoreaEuropeAccurate) },
+
+                        // Row 4
+                        new[] { 
+                            new KeyboardButton(TextManager.MenuCarEurobadgeAccurate), 
+                            new KeyboardButton(TextManager.MenuEurobadgeInformation) 
+                        },
+
+                        // Row 5
+                        new[] { 
+                            new KeyboardButton(TextManager.MenuNBUCurrencyRates), 
+                            new KeyboardButton(TextManager.MenuContacts) 
+                        }});
+
+            await Bot.SendTextMessageAsync(customer.ChatId, TextManager.StartText, replyMarkup: replyKeyboard);
+            LogService.PrintLogText($"{customer.FirstName} {customer.LastName}", TextManager.ConsoleStartedBot);
             ActiveCustomersCollection.Remove(customer.ChatId);
         }
     }

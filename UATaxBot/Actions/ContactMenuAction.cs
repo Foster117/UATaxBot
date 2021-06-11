@@ -13,7 +13,7 @@ namespace UATaxBot.Actions
         public static Dictionary<string, Customer> ActiveCustomersCollection => Program.ActiveCustomersCollection;
         public static async void Go(Customer customer)
         {
-            await Bot.SendTextMessageAsync(customer.ChatId, Messages.ContactsText);
+            await Bot.SendTextMessageAsync(customer.ChatId, TextManager.ContactsText);
             LogService.PrintLogText($"{customer.FirstName} {customer.LastName}", "checked contacts");
             ActiveCustomersCollection.Remove(customer.ChatId);
         }
