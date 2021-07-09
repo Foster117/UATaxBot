@@ -4,7 +4,7 @@ using UATaxBot.Services;
 
 namespace UATaxBot.Entities
 {
-    class TaxForm
+    class TaxAccurateCalculationForm
     {
         private Customer _Customer { get; set; }
         public decimal CarPrice { get; set; }
@@ -16,7 +16,7 @@ namespace UATaxBot.Entities
         public decimal TransportToUABorderCost { get; set; }
         private int _calcTaxStage = 0;
 
-        public TaxForm(Customer customer)
+        public TaxAccurateCalculationForm(Customer customer)
         {
             _Customer = customer;
         }
@@ -30,25 +30,26 @@ namespace UATaxBot.Entities
                 case 2:
                     return ("\U0001F4C4 Введите стоимость автомобиля:", _calcTaxStage);
                 case 3:
-                    return ("\U000026FD Выберите тип двигателя:", _calcTaxStage);
+                    return ("Какие затраты добавить?", _calcTaxStage);
                 case 4:
-                    return ((CarEngineType == EngineType.Electro) ? "\U0001F50B Введите ёмкость батареи (кВт/ч):" : "\U00002747 Введите объём двигателя (куб.см):", _calcTaxStage);
+                    return ("Введите сумму:", _calcTaxStage);
                 case 5:
-                    return ("\U0001F3AB Введите год выпуска автомобиля:", _calcTaxStage);
+                    return ("\U000026FD Выберите тип двигателя:", _calcTaxStage);
                 case 6:
-                    return ("\U0001F4B5\U0001F4B6 Выберите валюту транспортировки до границы Украины:", _calcTaxStage);
+                    return ((CarEngineType == EngineType.Electro) ? "\U0001F50B Введите ёмкость батареи (кВт/ч):" : "\U00002747 Введите объём двигателя (куб.см):", _calcTaxStage);
                 case 7:
-                    return ("\U0001F4C4 Введите цену транспортировки до границы Украины:", _calcTaxStage);
+                    return ("\U0001F3AB Введите год выпуска автомобиля:", _calcTaxStage);
                 default:
-                    string tax = TaxCalculation.CalculateTax(this);
-                    LogService.PrintLogText($"{_Customer.FirstName} {_Customer.LastName}", "calculated customs tax");
+                    string tax = TaxAccurateCalculation.CalculateTax(this);
+                    LogService.PrintLogText($"{_Customer.FirstName} {_Customer.LastName}", 
+                        TextManager.ConsoleCustomerCalculatesTaxAccurate);
                     return (tax, -1);
             }
         }
 
-        public bool SetCalcTaxParam(string param)
+        public bool SetCalcTaxParam(string parameter)
         {
-            if (string.IsNullOrEmpty(param))
+            if (string.IsNullOrEmpty(parameter))
             {
                 return false;
             }
@@ -56,7 +57,7 @@ namespace UATaxBot.Entities
             switch (_calcTaxStage)
             {
                 case 1:
-                    switch (param.ToUpper())
+                    switch (parameter.ToUpper())
                     {
                         case "USD":
                             CarPriceCurrency = CurrencyType.USD;
@@ -69,16 +70,43 @@ namespace UATaxBot.Entities
                     }
                     break;
                 case 2:
-                    decimal price;
-                    param = param.Replace(',', '.');
-                    if (decimal.TryParse(param, out price) && price > 0)
+                    decimal enteredCarPrice;
+                    parameter = parameter.Replace(',', '.');
+                    if (decimal.TryParse(parameter, out enteredCarPrice) && enteredCarPrice > 0)
                     {
-                        CarPrice = price;
+                        CarPrice = enteredCarPrice;
                         break;
                     }
                     return false;
                 case 3:
-                    switch (param.ToLower())
+                    switch (parameter)
+                    {
+                        case TextManager.AuctionComission:
+                            break;
+                        case TextManager.InsuranceCost:
+                            break;
+                        case TextManager.TransportationByLand:
+                            break;
+                        case TextManager.TransportationByWater:
+                            break;
+                        case TextManager.OtherExpenses:
+                            break;
+                        case TextManager.NotAdd:
+                            break;   
+                    }
+                    return false;
+
+                case 4:
+                    decimal enteredPrice;
+                    parameter = parameter.Replace(',', '.');
+                    if (decimal.TryParse(parameter, out enteredPrice) && enteredPrice >= 0)
+                    {
+                        ///////// TODO: Implement filtering
+                        break;
+                    }
+                    return false;
+                case 5:
+                    switch (parameter.ToLower())
                     {
                         case "petrol":
                             CarEngineType = EngineType.Petrol;
@@ -100,53 +128,31 @@ namespace UATaxBot.Entities
                             return false;
                     }
                     break;
-                case 4:
+                case 6:
                     int engineVolume;
                     int maxValue = 9999;
                     if (CarEngineType == EngineType.Electro)
                     {
                         maxValue = 400;
                         YearOfManufacture = 0;
-                        if (int.TryParse(param, out engineVolume) && engineVolume > 0 && engineVolume <= maxValue)
+                        if (int.TryParse(parameter, out engineVolume) && engineVolume > 0 && engineVolume <= maxValue)
                         {
                             EngineVolume = engineVolume;
                             _calcTaxStage++;
                             break;
                         }
                     }
-                    if (int.TryParse(param, out engineVolume) && engineVolume > 0 && engineVolume <= maxValue)
+                    if (int.TryParse(parameter, out engineVolume) && engineVolume > 0 && engineVolume <= maxValue)
                     {
                         EngineVolume = engineVolume;
                         break;
                     }
                     return false;
-                case 5:
+                case 7:
                     int year;
-                    if (int.TryParse(param, out year) && year > 1920 && year <= DateTime.Now.Year)
+                    if (int.TryParse(parameter, out year) && year > 1920 && year <= DateTime.Now.Year)
                     {
                         YearOfManufacture = year;
-                        break;
-                    }
-                    return false;
-                case 6:
-                    switch (param.ToUpper())
-                    {
-                        case "USD":
-                            TransportToUABorderCurrency = CurrencyType.USD;
-                            break;
-                        case "EUR":
-                            TransportToUABorderCurrency = CurrencyType.EUR;
-                            break;
-                        default:
-                            return false;
-                    }
-                    break;
-                case 7:
-                    decimal priceToBorder;
-                    param = param.Replace(',', '.');
-                    if (decimal.TryParse(param, out priceToBorder) && priceToBorder >= 0)
-                    {
-                        TransportToUABorderCost = priceToBorder;
                         break;
                     }
                     return false;

@@ -4,7 +4,7 @@ using System.Text;
 
 namespace UATaxBot.Services
 {
-    class LogService
+    static class LogService
     {
         private static bool ColorFlag { get; set; } = true;
         public static void PrintLogText(string name, string text)

@@ -4,7 +4,10 @@ namespace UATaxBot.Enums
     enum ActionType
     {
         None,
-        TaxCalculation,
-        TaxEuroCalculation
+        TaxUSAInaccurate,
+        TaxKoreaInaccurate,
+        TaxEuropeInaccurate,
+        TaxAccurate,
+        TaxEurobadgeAccurate
     }
 }

@@ -14,7 +14,7 @@ namespace UATaxBot.Actions
         public static void Go(Customer customer)
         {
             customer.TaxForm = null;
-            customer.ActionType = ActionType.TaxEuroCalculation;
+            customer.ActionType = ActionType.TaxEurobadgeAccurate;
             customer.TaxEuroForm = new TaxEuroForm(customer);
             TaxEuroCalculation.TaxCalculationProcess(Bot, customer);
         }

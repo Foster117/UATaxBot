@@ -18,10 +18,10 @@ namespace UATaxBot.Actions
             }
             switch (customer.ActionType)
             {
-                case ActionType.TaxCalculation:
-                    TaxCalculation.TaxCalculationProcess(Bot, customer);
+                case ActionType.TaxAccurate:
+                    TaxAccurateCalculation.TaxCalculationProcess(Bot, customer);
                     break;
-                case ActionType.TaxEuroCalculation:
+                case ActionType.TaxEurobadgeAccurate:
                     TaxEuroCalculation.TaxCalculationProcess(Bot, customer);
                     break;
                 default:

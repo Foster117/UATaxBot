@@ -1,18 +1,14 @@
 ﻿using System;
 using Telegram.Bot;
-using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Net;
-using System.IO;
-using System.Text.Json;
 using UATaxBot.Enums;
 using UATaxBot.Entities;
 
 namespace UATaxBot
 {
-    class TaxCalculation
+    class TaxAccurateCalculation
     {
         public static Dictionary<string, Customer> ActiveCustomersCollection => Program.ActiveCustomersCollection;
         public static async void TaxCalculationProcess(TelegramBotClient Bot, Customer customer)
@@ -25,38 +21,35 @@ namespace UATaxBot
             (string, int) stageText = customer.TaxForm.GetCalcTaxStageText();
             switch (stageText.Item2)
             {
-                case 0:
-                    (string, int) firstStageText = customer.TaxForm.GetCalcTaxStageText();
-                    InlineKeyboardMarkup inlineKeyboard = new InlineKeyboardMarkup(new[] {
-                                new[]{ InlineKeyboardButton.WithCallbackData("USD", "USD"),
-                                       InlineKeyboardButton.WithCallbackData("EUR", "EUR")}
-                                });
-                    await Bot.SendTextMessageAsync(customer.ChatId, firstStageText.Item1, replyMarkup: inlineKeyboard);
-                    return;
                 case 1:
                     var inlineKeyboard1 = new InlineKeyboardMarkup(new[] {
-                            new[]{ InlineKeyboardButton.WithCallbackData("USD", "USD"),
-                                   InlineKeyboardButton.WithCallbackData("EUR", "EUR")}
+                            new[]{ InlineKeyboardButton.WithCallbackData("USD"),
+                                   InlineKeyboardButton.WithCallbackData("EUR")}
                             });
                     await Bot.SendTextMessageAsync(customer.ChatId, stageText.Item1, replyMarkup: inlineKeyboard1);
                     return;
-
                 case 3:
-                    var inlineKeyboard4 = new InlineKeyboardMarkup(new[] {
+                    var inlineKeyboard3 = new InlineKeyboardMarkup(new[]
+                    {
+                        new[] { InlineKeyboardButton.WithCallbackData(TextManager.AuctionComission) },
+                        new[] { InlineKeyboardButton.WithCallbackData(TextManager.InsuranceCost) },
+                        new[] { InlineKeyboardButton.WithCallbackData(TextManager.TransportationByLand) },
+                        new[] { InlineKeyboardButton.WithCallbackData(TextManager.TransportationByWater) },
+                        new[] { InlineKeyboardButton.WithCallbackData(TextManager.OtherExpenses) },
+                        new[] { InlineKeyboardButton.WithCallbackData(TextManager.NotAdd) }
+                    });
+                    await Bot.SendTextMessageAsync(customer.ChatId, stageText.Item1, replyMarkup: inlineKeyboard3);
+                    return;
+
+
+                case 5:
+                    var inlineKeyboard5 = new InlineKeyboardMarkup(new[] {
                             new[]{ InlineKeyboardButton.WithCallbackData("Бензин и/или газ", "petrol"),
                                    InlineKeyboardButton.WithCallbackData("Дизель", "diesel")},
                             new[]{ InlineKeyboardButton.WithCallbackData("Гибрид", "hybrid"),
                                    InlineKeyboardButton.WithCallbackData("Электро", "electro")}
                             });
-                    await Bot.SendTextMessageAsync(customer.ChatId, stageText.Item1, replyMarkup: inlineKeyboard4);
-                    return;
-
-                case 6:
-                    var inlineKeyboard6 = new InlineKeyboardMarkup(new[] {
-                            new[]{ InlineKeyboardButton.WithCallbackData("USD", "USD"),
-                                   InlineKeyboardButton.WithCallbackData("EUR", "EUR")}
-                            });
-                    await Bot.SendTextMessageAsync(customer.ChatId, stageText.Item1, replyMarkup: inlineKeyboard6);
+                    await Bot.SendTextMessageAsync(customer.ChatId, stageText.Item1, replyMarkup: inlineKeyboard5);
                     return;
 
                 case -1:
@@ -70,7 +63,7 @@ namespace UATaxBot
             }
         }
 
-        private static decimal GetCP(TaxForm form, decimal rateUSD, decimal rateEUR)
+        private static decimal GetCP(TaxAccurateCalculationForm form, decimal rateUSD, decimal rateEUR)
         {
             decimal carPrice = 0;
             decimal transportationUAH = 0;
@@ -107,7 +100,7 @@ namespace UATaxBot
             }
             return ky;
         }
-        private static decimal GetKE(TaxForm form, decimal rateEUR)
+        private static decimal GetKE(TaxAccurateCalculationForm form, decimal rateEUR)
         {
             switch (form.CarEngineType)
             {
@@ -137,7 +130,7 @@ namespace UATaxBot
                     return 0;
             }
         }
-        private static decimal GetTF(TaxForm form, decimal CP)
+        private static decimal GetTF(TaxAccurateCalculationForm form, decimal CP)
         {
             if (form.CarEngineType == EngineType.Electro)
             {
@@ -148,7 +141,7 @@ namespace UATaxBot
                 return CP * 0.1m;
             }
         }
-        private static decimal GetEXC(TaxForm form, decimal KY, decimal KE)
+        private static decimal GetEXC(TaxAccurateCalculationForm form, decimal KY, decimal KE)
         {
             if (form.CarEngineType == EngineType.Petrol || form.CarEngineType == EngineType.Diesel)
             {
@@ -159,7 +152,7 @@ namespace UATaxBot
                 return KE;
             }
         }
-        private static decimal GetVAT(TaxForm form, decimal CP, decimal TF, decimal EXC)
+        private static decimal GetVAT(TaxAccurateCalculationForm form, decimal CP, decimal TF, decimal EXC)
         {
             if (form.CarEngineType == EngineType.Electro)
             {
@@ -167,7 +160,7 @@ namespace UATaxBot
             }
             else
             {
-               return (CP + TF + EXC) * 0.2m;
+                return (CP + TF + EXC) * 0.2m;
             }
         }
         private static decimal GetPF(decimal CP)
@@ -186,7 +179,7 @@ namespace UATaxBot
             }
         }
 
-        public static string CalculateTax(TaxForm form)
+        public static string CalculateTax(TaxAccurateCalculationForm form)
         {
             decimal rateUSD = 0, rateEUR = 0;
             decimal TAX, VAT, TF, EXC, CP, KY, KE, PF;
@@ -248,7 +241,7 @@ namespace UATaxBot
                 yearToOutput = $"Год выпуска: {form.YearOfManufacture}\n";
 
             decimal rateToOutput = 0;
-            switch (form.CarPriceCurrency)  
+            switch (form.CarPriceCurrency)
             {
                 case CurrencyType.USD:
                     rateToOutput = rateUSD;
@@ -280,8 +273,6 @@ namespace UATaxBot
                 $"Стоимость транспортировки: {form.TransportToUABorderCost} {form.TransportToUABorderCurrency}";
             return result;
         }
-
-
 
         private static string GetFormattedPrice(decimal price)
         {
